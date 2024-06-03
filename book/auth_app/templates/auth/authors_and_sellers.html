@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'vendors/styles/core.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendors/styles/icon-font.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'src/plugins/jquery-steps/jquery.steps.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendors/styles/style.css' %}">
+    <title>Authors and Sellers</title>
+</head>
+<body>
+    <h1>Authors and Sellers</h1>
+    <form method="get">
+        {{ filter.form.as_p }}
+        <button type="submit">Filter</button>
+    </form>
+    <ul>
+        {% for user in filter.qs %}
+            <li><b>Username</b>: {{ user.username }} - <b>Full Name:</b> {{ user.full_name }} <b>Email:</b> {{user.email}} <b>Address:</b> {{ user.city }}, {{ user.state }} <b>Gender:</b> {{user.gender}} <b>Birth Year:</b> {{user.birth_year}}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

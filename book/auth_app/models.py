@@ -11,7 +11,8 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=10)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
-
+    birth_year = models.IntegerField(blank=True, null=True)
+    public_visibility = models.BooleanField(default=False)
     REQUIRED_FIELDS = ['email']
 
     
