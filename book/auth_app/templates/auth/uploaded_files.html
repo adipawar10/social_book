@@ -1,0 +1,17 @@
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+<h2>Your Uploaded Files</h2>
+<ul>
+    {% for file in uploaded_files %}
+    <li>
+        <h3>{{ file.title }}</h3>
+        <p>{{ file.description }}</p>
+        <p><strong>Year Published:</strong> {{ file.year_published }}</p>
+        <p><strong>Cost:</strong> ${{ file.cost }}</p>
+        <p><strong>Visibility:</strong> {{ file.visibility|yesno:"Public,Private" }}</p>
+        <a href="{{ file.file.url }}">Download</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

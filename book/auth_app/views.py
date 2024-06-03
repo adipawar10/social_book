@@ -4,6 +4,7 @@ from django.contrib.auth import login, authenticate
 from django.utils import timezone
 from auth_app.models import CustomUser
 from auth_app.filters import CustomUserFilter
+from .models import UploadedFile
 
 def register_view(request):
     if request.method == 'POST':
@@ -63,3 +64,35 @@ def login_view(request):
 def authors_and_sellers_view(request):
     user_filter = CustomUserFilter(request.GET, queryset=CustomUser.objects.filter(public_visibility=True))
     return render(request, 'auth/authors_and_sellers.html', {'filter': user_filter})
+
+def upload_file_view(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        visibility = request.POST.get('visibility') == 'on'
+        cost = request.POST.get('cost')
+        year_published = request.POST.get('year_published')
+        file = request.FILES.get('file')
+
+        if file and file.name.split('.')[-1].lower() in ['pdf', 'jpeg', ]:
+            uploaded_file = UploadedFile(
+                user=request.user,
+                title=title,
+                description=description,
+                visibility=visibility,
+                cost=cost,
+                year_published=year_published,
+                file=file
+            )
+            uploaded_file.save()
+            messages.success(request, 'File uploaded successfully.')
+            return redirect('uploaded_files')
+        else:
+            messages.error(request, 'Invalid file format. Please upload a PDF or JPEG file.')
+
+    return render(request, 'auth/upload_file.html')
+
+def uploaded_files_view(request):
+    uploaded_files = UploadedFile.objects.filter(user=request.user)
+    return render(request, 'auth/uploaded_files.html', {'uploaded_files': uploaded_files})
+
