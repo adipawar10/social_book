@@ -17,7 +17,7 @@ def register_view(request):
         city = request.POST.get('city')
         state = request.POST.get('state')
         birth_year = request.POST.get('birth_year')
-        public_visibility = request.POST.get('public_visibility')
+        public_visibility = request.POST.get('public_visibility') == 'on'
 
         if password != confirm_password:
             messages.error(request, 'Passwords do not match.')
@@ -74,7 +74,7 @@ def upload_file_view(request):
         year_published = request.POST.get('year_published')
         file = request.FILES.get('file')
 
-        if file and file.name.split('.')[-1].lower() in ['pdf', 'jpeg', ]:
+        if file and file.name.split('.')[-1].lower() in ['pdf', 'jpeg', 'jpg'] and file.size <= 5242880:  # 5MB limit
             uploaded_file = UploadedFile(
                 user=request.user,
                 title=title,
@@ -88,9 +88,10 @@ def upload_file_view(request):
             messages.success(request, 'File uploaded successfully.')
             return redirect('uploaded_files')
         else:
-            messages.error(request, 'Invalid file format. Please upload a PDF or JPEG file.')
+            messages.error(request, 'Invalid file format or file size too large. Please upload a PDF or JPEG file smaller than 5MB.')
 
     return render(request, 'auth/upload_file.html')
+
 
 def uploaded_files_view(request):
     uploaded_files = UploadedFile.objects.filter(user=request.user)

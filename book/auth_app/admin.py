@@ -1,5 +1,6 @@
 from django.contrib import admin
-from auth_app.models import CustomUser
+from auth_app.models import CustomUser, UploadedFile
+
 from django.utils import timezone
 
 
@@ -14,3 +15,4 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(UploadedFile)

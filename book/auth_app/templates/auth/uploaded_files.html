@@ -10,7 +10,7 @@
         <p><strong>Year Published:</strong> {{ file.year_published }}</p>
         <p><strong>Cost:</strong> ${{ file.cost }}</p>
         <p><strong>Visibility:</strong> {{ file.visibility|yesno:"Public,Private" }}</p>
-        <a href="{{ file.file.url }}">Download</a>
+        <a href="{{ file.file.url }}" download>Download</a>
     </li>
     {% endfor %}
 </ul>

@@ -21,7 +21,7 @@ class UploadedFile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploaded_files')
     title = models.CharField(max_length=255)
     description = models.TextField()
-    file = models.FileField(upload_to='uploaded_files/')
+    file = models.FileField(null=True, blank=True, upload_to='uploaded_files/')
     visibility = models.BooleanField(default=True)
     cost = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     year_published = models.IntegerField(null=True, blank=True)
