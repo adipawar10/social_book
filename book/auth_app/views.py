@@ -5,6 +5,7 @@ from django.utils import timezone
 from auth_app.models import CustomUser
 from auth_app.filters import CustomUserFilter
 from .models import UploadedFile
+from django.db import connection
 
 def register_view(request):
     if request.method == 'POST':
@@ -96,4 +97,15 @@ def upload_file_view(request):
 def uploaded_files_view(request):
     uploaded_files = UploadedFile.objects.filter(user=request.user)
     return render(request, 'auth/uploaded_files.html', {'uploaded_files': uploaded_files})
+
+def fetch_custom_users(request):
+    # Your raw SQL query
+    query = "SELECT * FROM auth_app_customuser;"
+    
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+    # Process rows as needed (e.g., pass to template context)
+    return render(request, 'your_template.html', {'data': rows})
 

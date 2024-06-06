@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import fetch_custom_users
 
 
 urlpatterns = [
@@ -8,4 +9,5 @@ urlpatterns = [
     path('authors-and-sellers/', views.authors_and_sellers_view, name='authors_and_sellers'),
     path('upload-file/', views.upload_file_view, name='upload_file'),
     path('uploaded-files/', views.uploaded_files_view, name='uploaded_files'),
+    path('fetch_custom_users/', fetch_custom_users, name='fetch_custom_users'),
 ]
