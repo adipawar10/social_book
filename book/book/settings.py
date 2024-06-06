@@ -39,8 +39,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'auth_app',
+    'auth_app'
+    # 'rest_framework',
+
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
 
 AUTHENTICATION_BACKENDS=[
     'django.contrib.auth.backends.ModelBackend'
@@ -82,8 +94,12 @@ WSGI_APPLICATION = 'book.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'books_db',
+        'USER': 'postgres',
+        'PASSWORD':'adi10',
+        'HOST': 'localhost',  # Set to your database server address if not local
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
 
