@@ -6,6 +6,15 @@ from auth_app.models import CustomUser
 from auth_app.filters import CustomUserFilter
 from .models import UploadedFile
 from django.db import connection
+from rest_framework.views import APIView
+from rest_framework.authtoken.models import Token
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import UploadedFile
+from .serializers import UploadedFileSerializer
+
+
 
 def register_view(request):
     if request.method == 'POST':
@@ -53,7 +62,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             if remember:
-                request.session.set_expiry(1209600)  # 2 weeks
+                request.session.set_expiry(1209600000000000000000)  # 2 weeks
             else:
                 request.session.set_expiry(0)  # Browser close
             return redirect('authors_and_sellers')
@@ -61,6 +70,10 @@ def login_view(request):
             messages.error(request, 'Invalid username or password.')
             
     return render(request, 'auth/login.html')
+
+class LoginUser(APIView):
+    def post(self, request):
+        pass
 
 def authors_and_sellers_view(request):
     user_filter = CustomUserFilter(request.GET, queryset=CustomUser.objects.filter(public_visibility=True))
@@ -109,3 +122,21 @@ def fetch_custom_users(request):
     # Process rows as needed (e.g., pass to template context)
     return render(request, 'your_template.html', {'data': rows})
 
+
+
+
+class UploadedFileList(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        # 1. Identify the current user
+        user = request.user
+
+        # 2. Query the data uploaded by the current user
+        user_uploaded_files = UploadedFile.objects.filter(user=user)
+
+        # 3. Serialize the data
+        serializer = UploadedFileSerializer(user_uploaded_files, many=True)
+
+        # 4. Return response
+        return Response(serializer.data)
