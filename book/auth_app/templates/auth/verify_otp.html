@@ -1,0 +1,28 @@
+{% extends 'layouts/app.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+    {% load static %}
+<head>
+    <meta charset="utf-8">
+    <title>Verify OTP</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'vendors/styles/core.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendors/styles/style.css' %}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Verify OTP</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-group custom">
+                <input type="text" name="otp" class="form-control form-control-lg" placeholder="Enter OTP" required>
+            </div>
+            <div class="input-group mb-0">
+                <input class="btn btn-primary btn-lg btn-block" type="submit" value="Verify">
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+{% endblock %}

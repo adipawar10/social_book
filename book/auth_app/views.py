@@ -13,6 +13,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import UploadedFile
 from .serializers import UploadedFileSerializer
+import pyotp
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+
 
 def dashboard_view(request):
     return render(request, 'auth/dashboard.html')
@@ -53,24 +58,55 @@ def register_view(request):
                 return redirect('login')
     return render(request, 'auth/register.html')
 
+
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        remember = request.POST.get('remember', None)
-
         user = authenticate(request, username=username, password=password)
+        
         if user is not None:
-            login(request, user)
-            if remember:
-                request.session.set_expiry(1209600000000000000000)  # 2 weeks
-            else:
-                request.session.set_expiry(0)  # Browser close
-            return redirect('dashboard')
+            # Generate a random token
+            otp = pyotp.TOTP(pyotp.random_base32()).now()
+            request.session['otp'] = otp
+            request.session['user_id'] = user.id
+            
+            # Send OTP to user's email
+            try:
+                send_mail(
+                    'Your OTP Code',
+                    f'Your OTP code is {otp}',
+                    settings.EMAIL_HOST_USER,
+                    [user.email],
+                    fail_silently=False,
+                )
+                return redirect('verify_otp')
+            except Exception as e:
+                messages.error(request, f'Error sending email: {e}')
         else:
             messages.error(request, 'Invalid username or password.')
-            
+    
     return render(request, 'auth/login.html')
+
+def verify_otp_view(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        otp = request.session.get('otp')
+        user_id = request.session.get('user_id')
+        
+        if otp and entered_otp == otp:
+            user = CustomUser.objects.get(id=user_id)
+            login(request, user)
+            # Safely delete the session keys
+            request.session.pop('otp', None)
+            request.session.pop('user_id', None)
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid OTP.')
+    
+    return render(request, 'auth/verify_otp.html')
+
 
 class LoginUser(APIView):
     def post(self, request):
@@ -119,7 +155,7 @@ def user_has_uploaded_files(view_func):
 @user_has_uploaded_files
 def uploaded_files_view(request):
     uploaded_files = UploadedFile.objects.filter(user=request.user)
-    return render(request, 'auth_app/uploaded_files.html', {'uploaded_files': uploaded_files})
+    return render(request, 'auth/uploaded_files.html', {'uploaded_files': uploaded_files})
 
 def fetch_custom_users(request):
     # Your raw SQL query
@@ -128,6 +164,9 @@ def fetch_custom_users(request):
     with connection.cursor() as cursor:
         cursor.execute(query)
         rows = cursor.fetchall()
+
+    # Process rows as needed (e.g., pass to template context)
+    return render(request, 'your_template.html', {'data': rows})
 
     # Process rows as needed (e.g., pass to template context)
     return render(request, 'your_template.html', {'data': rows})
