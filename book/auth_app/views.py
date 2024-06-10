@@ -14,7 +14,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import UploadedFile
 from .serializers import UploadedFileSerializer
 
-
+def dashboard_view(request):
+    return render(request, 'auth/dashboard.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -65,7 +66,7 @@ def login_view(request):
                 request.session.set_expiry(1209600000000000000000)  # 2 weeks
             else:
                 request.session.set_expiry(0)  # Browser close
-            return redirect('authors_and_sellers')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
             
@@ -106,10 +107,19 @@ def upload_file_view(request):
 
     return render(request, 'auth/upload_file.html')
 
+def user_has_uploaded_files(view_func):
+    def _wrapped_view_func(request, *args, **kwargs):
+        if not UploadedFile.objects.filter(user=request.user).exists():
+            messages.error(request, "You need to upload a file first.")
+            return redirect('dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view_func
 
+
+@user_has_uploaded_files
 def uploaded_files_view(request):
     uploaded_files = UploadedFile.objects.filter(user=request.user)
-    return render(request, 'auth/uploaded_files.html', {'uploaded_files': uploaded_files})
+    return render(request, 'auth_app/uploaded_files.html', {'uploaded_files': uploaded_files})
 
 def fetch_custom_users(request):
     # Your raw SQL query
